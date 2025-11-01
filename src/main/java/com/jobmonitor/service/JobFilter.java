@@ -21,6 +21,9 @@ public class JobFilter {
     }
 
     public List<Job> filterNewJobs(List<Job> jobs, Set<String> storedLinks) {
+        if(storedLinks.isEmpty()){
+            return jobs;
+        }
         return jobs.stream()
                 .filter(job -> !storedLinks.contains(job.getLink()))
                 .collect(Collectors.toList());

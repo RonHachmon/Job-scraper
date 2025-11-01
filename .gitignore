@@ -3,7 +3,8 @@
 
 # Log files
 *.log
-
+*.bat
+*.jar
 # Maven
 target/
 pom.xml.tag

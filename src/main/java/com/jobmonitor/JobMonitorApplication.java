@@ -16,11 +16,6 @@ import java.util.List;
 
 public class JobMonitorApplication {
     public static void main(String[] args) {
-
-//        System.getenv().forEach((key, value) ->
-//                System.out.println(key + " = " + value)
-//        );
-
         AppConfig config = ConfigLoader.loadConfig();
 
         GoogleSearchService searchService = new GoogleSearchService(config);
@@ -84,12 +79,12 @@ public class JobMonitorApplication {
         
         notifiers.add(new ConsoleNotifier());
         
-//        if (config.getTelegramBotToken() != null && !config.getTelegramBotToken().isEmpty()) {
-//            notifiers.add(new TelegramNotifier(
-//                    config.getTelegramBotToken(),
-//                    config.getTelegramChatId()
-//            ));
-//        }
+        if (config.getTelegramBotToken() != null && !config.getTelegramBotToken().isEmpty()) {
+            notifiers.add(new TelegramNotifier(
+                    config.getTelegramBotToken(),
+                    config.getTelegramChatId()
+            ));
+        }
         
         return notifiers;
     }

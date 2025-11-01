@@ -48,12 +48,12 @@ public class JobMonitorService {
 
     private void startScheduler() {
         scheduler = Executors.newSingleThreadScheduledExecutor();
-        long intervalMs = config.getCheckIntervalMs();
+        long intervalMinutes = config.getCheckIntervalMinutes();
         
         scheduler.scheduleAtFixedRate(() -> {
             checkAndNotify();
             checkSleepTime();
-        }, 0, intervalMs, TimeUnit.MILLISECONDS);
+        }, 0, intervalMinutes, TimeUnit.MINUTES);
     }
 
     private void checkAndNotify() {
@@ -111,7 +111,7 @@ public class JobMonitorService {
     private void checkSleepTime() {
         int currentHour = LocalTime.now().getHour();
         if (currentHour >= config.getSleepHour()) {
-            System.out.println("Entering sleep mode for " + (config.getSleepTimeMs() / 3600000) + " hours...");
+
             stop();
             
             Executors.newSingleThreadScheduledExecutor().schedule(

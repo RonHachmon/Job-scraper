@@ -43,7 +43,7 @@ public class AppConfig {
     public String getJobsFile() { return jobsFile; }
     public int getSnippetMaxLength() { return snippetMaxLength; }
     public int getCheckIntervalMinutes() { return checkIntervalMinutes; }
-    public long getCheckIntervalMs() { return checkIntervalMinutes * 60L * 1000L; }
+
     public int getSleepHour() { return sleepHour; }
     public long getSleepTimeMs() { return sleepTimeMs; }
     public String getTelegramBotToken() { return telegramBotToken; }
@@ -146,13 +146,15 @@ public class AppConfig {
             return this;
         }
 
-        public AppConfig build() {
-            return new AppConfig(this);
-        }
-
         public Builder sleepTimeHours(int hours) {
             this.sleepTimeHour = hours;
             return this;
         }
+
+        public AppConfig build() {
+            return new AppConfig(this);
+        }
+
+
     }
 }
