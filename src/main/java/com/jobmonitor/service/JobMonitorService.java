@@ -20,6 +20,7 @@ public class JobMonitorService {
     private final List<Notifier> notifiers;
     private ScheduledExecutorService scheduler;
 
+    private Set<String> jobLinks;
     public JobMonitorService(
             AppConfig config,
             GoogleSearchService searchService,
@@ -31,6 +32,8 @@ public class JobMonitorService {
         this.jobFilter = jobFilter;
         this.storage = storage;
         this.notifiers = notifiers;
+
+        jobLinks = storage.getStoredJobLinks();
     }
 
     public void start() {
@@ -58,21 +61,19 @@ public class JobMonitorService {
 
     private void checkAndNotify() {
         try {
-            Set<String> storedLinks = storage.getStoredJobLinks();
             List<Job> currentJobs = searchService.fetchJobs();
             System.out.println("Fetched " + currentJobs.size() + " jobs from API");
 
             List<Job> filteredJobs = jobFilter.filterByTitle(currentJobs);
             System.out.println("Filtered " + filteredJobs.size() + " jobs after title filtering");
 
-            List<Job> newJobs = jobFilter.filterNewJobs(filteredJobs, storedLinks);
+            List<Job> newJobs = jobFilter.filterNewJobs(filteredJobs, jobLinks);
 
-            if (newJobs.isEmpty()) {
-                System.out.println("No new jobs found");
-                notifyNoNewJobs();
-            } else {
-                notifyNewJobs(newJobs);
-                updateStorage(currentJobs);
+            notifyJobs(newJobs);
+
+            if(!newJobs.isEmpty()){
+
+                updateNewLinks(newJobs);
             }
         } catch (Exception e) {
             System.err.println("Error checking jobs: " + e.getMessage());
@@ -80,7 +81,7 @@ public class JobMonitorService {
         }
     }
 
-    private void notifyNewJobs(List<Job> jobs) {
+    private void notifyJobs(List<Job>  jobs){
         for (Notifier notifier : notifiers) {
             try {
                 notifier.notify(jobs);
@@ -88,23 +89,19 @@ public class JobMonitorService {
                 System.err.println("Error sending notification: " + e.getMessage());
             }
         }
+
         System.out.println("Sent notifications for " + jobs.size() + " new job(s)");
+
     }
 
-    private void notifyNoNewJobs() {
-        for (Notifier notifier : notifiers) {
-            try {
-                notifier.notify(List.of());
-            } catch (Exception e) {
-                System.err.println("Error sending notification: " + e.getMessage());
-            }
-        }
-    }
 
-    private void updateStorage(List<Job> jobs) {
+    private void updateNewLinks(List<Job> jobs) {
         Set<String> links = jobs.stream()
                 .map(Job::getLink)
                 .collect(Collectors.toSet());
+
+
+        jobLinks.addAll(links);
         storage.saveJobLinks(links);
     }
 

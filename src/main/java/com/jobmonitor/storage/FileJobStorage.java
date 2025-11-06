@@ -7,30 +7,28 @@ import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class FileJobStorage implements JobStorage {
     private final String filePath;
-    private final Gson gson;
 
     public FileJobStorage(String filePath) {
         this.filePath = filePath;
-        this.gson = new Gson();
+
     }
 
     @Override
     public Set<String> getStoredJobLinks() {
         Path path = Paths.get(filePath);
-        
         if (!Files.exists(path)) {
             return new HashSet<>();
         }
-
         try {
-            String content = Files.readString(path);
-            Type setType = new TypeToken<Set<String>>(){}.getType();
-            return gson.fromJson(content, setType);
+            List<String> lines = Files.readAllLines(path);
+            return new HashSet<>(lines);
         } catch (IOException e) {
             System.err.println("Error reading job links: " + e.getMessage());
             return new HashSet<>();
@@ -39,11 +37,18 @@ public class FileJobStorage implements JobStorage {
 
     @Override
     public void saveJobLinks(Set<String> links) {
+        if (links.isEmpty()) {
+            return;
+        }
+
+        Path path = Paths.get(filePath);
+
         try {
-            String json = gson.toJson(links);
-            Files.writeString(Paths.get(filePath), json);
+            Files.write(path, links, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (IOException e) {
             System.err.println("Error saving job links: " + e.getMessage());
         }
     }
+
+
 }

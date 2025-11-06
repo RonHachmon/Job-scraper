@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GoogleSearchService {
+public class GoogleSearchService implements JobsProvider {
     private static final String BASE_URL = "https://www.googleapis.com/customsearch/v1";
     private static final int MAX_PAGES = 10;
     
@@ -26,6 +26,7 @@ public class GoogleSearchService {
         this.httpClient = HttpClient.newHttpClient();
     }
 
+    @Override
     public List<Job> fetchJobs() throws Exception {
         List<Job> allJobs = new ArrayList<>();
         

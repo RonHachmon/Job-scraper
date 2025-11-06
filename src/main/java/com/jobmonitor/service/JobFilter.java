@@ -20,12 +20,12 @@ public class JobFilter {
                 .collect(Collectors.toList());
     }
 
-    public List<Job> filterNewJobs(List<Job> jobs, Set<String> storedLinks) {
-        if(storedLinks.isEmpty()){
-            return jobs;
+    public List<Job> filterNewJobs(List<Job> newJobs, Set<String> oldJobsLinks) {
+        if(oldJobsLinks.isEmpty()){
+            return newJobs;
         }
-        return jobs.stream()
-                .filter(job -> !storedLinks.contains(job.getLink()))
+        return newJobs.stream()
+                .filter(job -> !oldJobsLinks.contains(job.getLink()))
                 .collect(Collectors.toList());
     }
 

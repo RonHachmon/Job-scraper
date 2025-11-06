@@ -14,7 +14,7 @@ public class ConfigLoader {
         Properties props = loadProperties();
         
         return new AppConfig.Builder()
-                .jobsFile(getProperty(props, "jobs.file", "jobs.json"))
+                .jobsFile(getProperty(props, "jobs.file", "jobs.txt"))
                 .snippetMaxLength(getIntProperty(props, "snippet.max.length", 80))
                 .checkIntervalMinutes(getIntProperty(props, "check.interval.minutes", 60))
                 .sleepHour(getIntProperty(props, "sleep.hour", 23))
@@ -55,10 +55,6 @@ public class ConfigLoader {
         return value != null ? Integer.parseInt(value) : defaultValue;
     }
 
-    private static long getLongProperty(Properties props, String key, long defaultValue) {
-        String value = props.getProperty(key);
-        return value != null ? Long.parseLong(value) : defaultValue;
-    }
 
     private static List<String> parseList(Properties props, String key) {
         String value = props.getProperty(key, "");

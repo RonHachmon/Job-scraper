@@ -6,5 +6,5 @@ services:
     env_file:
       - .env
     volumes:
-      - ./jobs.json:/app/jobs.json
+      - ./jobs.txt:/app/jobs.txt
     restart: unless-stopped

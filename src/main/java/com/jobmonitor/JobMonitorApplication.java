@@ -40,17 +40,6 @@ public class JobMonitorApplication {
     }
 
 
-//    public static void main(String[] args) {
-//        AppConfig config = ConfigLoader.loadConfig();
-//
-//        printConfiguration(config);  // ADD THIS LINE
-//
-//        //GoogleSearchService searchService = new GoogleSearchService(config);
-//        // ... rest of your existing code
-//    }
-
-// ADD THESE TWO METHODS at the bottom of the class:
-
     private static void printConfiguration(AppConfig config) {
         System.out.println("=".repeat(80));
         System.out.println("Configuration Loaded:");
@@ -79,12 +68,12 @@ public class JobMonitorApplication {
         
         notifiers.add(new ConsoleNotifier());
         
-        if (config.getTelegramBotToken() != null && !config.getTelegramBotToken().isEmpty()) {
-            notifiers.add(new TelegramNotifier(
-                    config.getTelegramBotToken(),
-                    config.getTelegramChatId()
-            ));
-        }
+//        if (config.getTelegramBotToken() != null && !config.getTelegramBotToken().isEmpty()) {
+//            notifiers.add(new TelegramNotifier(
+//                    config.getTelegramBotToken(),
+//                    config.getTelegramChatId()
+//            ));
+//        }
         
         return notifiers;
     }

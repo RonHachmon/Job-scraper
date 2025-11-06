@@ -25,13 +25,18 @@ public class TelegramNotifier implements Notifier {
 
     @Override
     public void notify(List<Job> jobs) throws Exception {
-        int currentIndex = 1;
-        
-        for (int i = 0; i < jobs.size(); i += CHUNK_SIZE) {
-            List<Job> chunk = jobs.subList(i, Math.min(i + CHUNK_SIZE, jobs.size()));
-            String message = formatMessage(chunk, currentIndex);
-            sendMessage(message);
-            currentIndex += chunk.size();
+
+        if (jobs.size() == 0) {
+            sendMessage("No new jobs");
+        } else {
+
+            int currentIndex = 1;
+            for (int i = 0; i < jobs.size(); i += CHUNK_SIZE) {
+                List<Job> chunk = jobs.subList(i, Math.min(i + CHUNK_SIZE, jobs.size()));
+                String message = formatMessage(chunk, currentIndex);
+                sendMessage(message);
+                currentIndex += chunk.size();
+            }
         }
     }
 
