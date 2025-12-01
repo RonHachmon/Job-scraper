@@ -13,6 +13,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GoogleSearchService implements JobsProvider {
     private static final String BASE_URL = "https://www.googleapis.com/customsearch/v1";
@@ -20,9 +21,11 @@ public class GoogleSearchService implements JobsProvider {
     
     private final AppConfig config;
     private final HttpClient httpClient;
+    private final JobFilter jobFilter;
 
-    public GoogleSearchService(AppConfig config) {
+    public GoogleSearchService(AppConfig config, JobFilter jobFilter) {
         this.config = config;
+        this.jobFilter = jobFilter;
         this.httpClient = HttpClient.newHttpClient();
     }
 
@@ -48,19 +51,35 @@ public class GoogleSearchService implements JobsProvider {
                 break;
             }
         }
+        allJobs = jobFilter.filterByTitle(allJobs);
         
         return allJobs;
     }
 
     private String buildApiUrl(int page) {
         String searchQuery = buildSearchQuery();
-        String excludedTerms = String.join(" ", config.getExcludedPageTerms());
+
+        List<String> excludedTerms = config.getExcludedPageTerms(); // List of strings to exclude
+
+        // Transform ["3+", "3 years"] to ["- "3+"", "- "3 years""]
+        List<String> negatedTerms = excludedTerms.stream()
+                // 1. Prepend the minus sign (-)
+                // 2. Wrap the term in quotes (") for robustness
+                .map(term -> "-\"" + term + "\"")
+                .collect(Collectors.toList());
+
+        // C. Join everything with spaces
+        String exclusionString = String.join(" ", negatedTerms);
+
+        String full_query = searchQuery + " " + exclusionString;
+
+
         int startIndex = (page - 1) * 10 + 1;
 
 
         return BASE_URL + "?" +
-                "q=" + encode(searchQuery) +
-                "&excludeTerms=" + encode(excludedTerms) +
+                "q=" + encode(full_query) +
+                //"&excludeTerms=" + encode(excludedTerms) +
                 "&gl=" + config.getCountryCode() +
                 "&cx=" + config.getSearchEngineId() +
                 "&key=" + config.getApiKey() +
@@ -68,10 +87,20 @@ public class GoogleSearchService implements JobsProvider {
                 "&fields=" + encode("items(title,link,snippet),queries(nextPage,request(searchTerms,excludeTerms))");
     }
 
+    private List<String> WrapQuote(List<String> strings) {
+        if (strings == null) {
+            return null;
+        }
+
+        return strings.stream()
+                .map(s -> "\"" + s + "\"")
+                .collect(Collectors.toList());
+    }
+
     private String buildSearchQuery() {
-        String positions = String.join(" OR ", config.getPositions());
-        String levels = String.join(" OR ", config.getLevels());
-        String locations = String.join(" OR ", config.getLocations());
+        String positions = String.join(" OR ", WrapQuote(config.getPositions()));
+        String levels = String.join(" OR ", WrapQuote(config.getLevels()));
+        String locations = String.join(" OR ", WrapQuote(config.getLocations()));
         
         return String.format("(%s) (%s) (%s)", positions, levels, locations);
     }

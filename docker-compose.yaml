@@ -7,4 +7,5 @@ services:
       - .env
     volumes:
       - ./jobs.txt:/app/jobs.txt
+    shm_size: 2gb
     restart: unless-stopped

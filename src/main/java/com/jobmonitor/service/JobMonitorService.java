@@ -5,6 +5,7 @@ import com.jobmonitor.model.Job;
 import com.jobmonitor.notifier.Notifier;
 import com.jobmonitor.storage.JobStorage;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -14,24 +15,26 @@ import java.util.stream.Collectors;
 
 public class JobMonitorService {
     private final AppConfig config;
-    private final GoogleSearchService searchService;
+
     private final JobFilter jobFilter;
     private final JobStorage storage;
     private final List<Notifier> notifiers;
     private ScheduledExecutorService scheduler;
 
-    private Set<String> jobLinks;
+    private final List<JobsProvider> jobsProviders;
+
+    private final Set<String> jobLinks;
     public JobMonitorService(
             AppConfig config,
-            GoogleSearchService searchService,
+            List<JobsProvider> jobsProviders,
             JobFilter jobFilter,
             JobStorage storage,
             List<Notifier> notifiers) {
         this.config = config;
-        this.searchService = searchService;
         this.jobFilter = jobFilter;
         this.storage = storage;
         this.notifiers = notifiers;
+        this.jobsProviders = jobsProviders;
 
         jobLinks = storage.getStoredJobLinks();
     }
@@ -61,13 +64,18 @@ public class JobMonitorService {
 
     private void checkAndNotify() {
         try {
-            List<Job> currentJobs = searchService.fetchJobs();
-            System.out.println("Fetched " + currentJobs.size() + " jobs from API");
+            List<Job> currentJobs = new ArrayList<>();
 
-            List<Job> filteredJobs = jobFilter.filterByTitle(currentJobs);
-            System.out.println("Filtered " + filteredJobs.size() + " jobs after title filtering");
+            for(JobsProvider a: jobsProviders){
+                currentJobs.addAll(a.fetchJobs());
+            }
 
-            List<Job> newJobs = jobFilter.filterNewJobs(filteredJobs, jobLinks);
+
+            System.out.println("Fetched " + currentJobs.size() + " jobs from providers");
+
+
+
+            List<Job> newJobs = jobFilter.filterNewJobs(currentJobs, jobLinks);
 
             notifyJobs(newJobs);
 
