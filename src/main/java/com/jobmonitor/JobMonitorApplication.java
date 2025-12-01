@@ -8,29 +8,46 @@ import com.jobmonitor.notifier.TelegramNotifier;
 import com.jobmonitor.service.GoogleSearchService;
 import com.jobmonitor.service.JobFilter;
 import com.jobmonitor.service.JobMonitorService;
+import com.jobmonitor.service.JobsProvider;
+import com.jobmonitor.service.scrapers.ImpervaScraper;
 import com.jobmonitor.storage.FileJobStorage;
 import com.jobmonitor.storage.JobStorage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+
+
 public class JobMonitorApplication {
+
+
     public static void main(String[] args) {
         AppConfig config = ConfigLoader.loadConfig();
+        JobFilter jobFilter = new JobFilter(config);
 
-        GoogleSearchService searchService = new GoogleSearchService(config);
-        JobFilter jobFilter = new JobFilter(config.getExcludedTitleTerms());
+
+
+
         JobStorage storage = new FileJobStorage(config.getJobsFile());
 
         List<Notifier> notifiers = createNotifiers(config);
+        List<JobsProvider> providers = new ArrayList<>();
+
+        JobsProvider searchService = new GoogleSearchService(config,jobFilter);
+        providers.add(searchService);
+
+        JobsProvider impervaScraper = new ImpervaScraper(jobFilter);
+        providers.add(impervaScraper);
 
         JobMonitorService monitorService = new JobMonitorService(
                 config,
-                searchService,
+                providers,
                 jobFilter,
                 storage,
                 notifiers
         );
+
+
+
 
 
 
