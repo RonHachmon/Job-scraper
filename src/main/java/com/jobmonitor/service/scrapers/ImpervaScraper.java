@@ -20,22 +20,22 @@ public class ImpervaScraper implements JobsProvider {
     private static final String CAREERS_URL = "https://careers.thalesgroup.com/global/en/search-results";
     private static final String ISRAEL = "Israel";
 
-    private final WebDriver driver;
-    private final WebDriverWait wait;
+    private WebDriver driver;
+    private WebDriverWait wait;
 
     private final JobFilter filter;
 
     private int totalPages;
 
     public ImpervaScraper(JobFilter filter) {
-        this.driver = WebDriverFactory.createDriver(BrowserType.FIREFOX, true);
-        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         this.filter =filter;
 
     }
 
     @Override
     public List<Job> fetchJobs() {
+        this.driver = WebDriverFactory.createDriver(BrowserType.FIREFOX, true);
+        this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         try {
             navigateToCareersSite();
             declineCookies();
@@ -46,6 +46,8 @@ public class ImpervaScraper implements JobsProvider {
             return filteredJobs(jobs);
         } finally {
             driver.quit();
+            driver = null;
+            wait = null;
         }
     }
 
