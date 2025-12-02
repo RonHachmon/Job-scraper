@@ -28,22 +28,23 @@ public class TelegramNotifier implements Notifier {
 
         if (jobs.size() == 0) {
             sendMessage("No new jobs");
-        } else {
-
-            int currentIndex = 1;
-            for (int i = 0; i < jobs.size(); i += CHUNK_SIZE) {
-                List<Job> chunk = jobs.subList(i, Math.min(i + CHUNK_SIZE, jobs.size()));
-                String message = formatMessage(chunk, currentIndex);
-                sendMessage(message);
-                currentIndex += chunk.size();
-            }
+            return;
         }
+
+        sendMessage("Found " + jobs.size() + " new jobs\n\n");
+
+        int currentIndex = 1;
+        for (int i = 0; i < jobs.size(); i += CHUNK_SIZE) {
+            List<Job> chunk = jobs.subList(i, Math.min(i + CHUNK_SIZE, jobs.size()));
+            String message = formatMessage(chunk, currentIndex);
+            sendMessage(message);
+            currentIndex += chunk.size();
+        }
+
     }
 
     private String formatMessage(List<Job> jobs, int startIndex) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Found ").append(jobs.size()).append(" new job(s):\n\n");
-        
         for (int i = 0; i < jobs.size(); i++) {
             Job job = jobs.get(i);
             sb.append(startIndex + i).append(". ").append(job.getTitle()).append("\n");

@@ -85,12 +85,12 @@ public class JobMonitorApplication {
         
         notifiers.add(new ConsoleNotifier());
         
-//        if (config.getTelegramBotToken() != null && !config.getTelegramBotToken().isEmpty()) {
-//            notifiers.add(new TelegramNotifier(
-//                    config.getTelegramBotToken(),
-//                    config.getTelegramChatId()
-//            ));
-//        }
+        if (config.getTelegramBotToken() != null && !config.getTelegramBotToken().isEmpty()) {
+            notifiers.add(new TelegramNotifier(
+                    config.getTelegramBotToken(),
+                    config.getTelegramChatId()
+            ));
+        }
         
         return notifiers;
     }
