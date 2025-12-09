@@ -34,7 +34,7 @@ public class ImpervaScraper implements JobsProvider {
 
     @Override
     public List<Job> fetchJobs() {
-        this.driver = WebDriverFactory.createDriver(BrowserType.FIREFOX, true);
+        this.driver = WebDriverFactory.createDriver(BrowserType.FIREFOX);
         this.wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         try {
             navigateToCareersSite();
