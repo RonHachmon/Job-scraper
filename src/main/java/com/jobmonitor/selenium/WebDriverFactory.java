@@ -19,9 +19,10 @@ public class WebDriverFactory {
     }
 
 
-
     public static WebDriver createDriver(BrowserType browserType) {
-        return createDriver(browserType, false);
+        boolean headless = System.getenv("HEADLESS") == null;
+
+        return createDriver(browserType, headless);
     }
 
     public static WebDriver createDriver(BrowserType browserType, boolean headless) {

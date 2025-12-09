@@ -12,6 +12,7 @@ import com.jobmonitor.service.JobMonitorService;
 import com.jobmonitor.service.JobsProvider;
 import com.jobmonitor.service.scrapers.ImpervaScraper;
 import com.jobmonitor.service.scrapers.NvidiaScraper;
+import com.jobmonitor.service.scrapers.RedHatScraper;
 import com.jobmonitor.storage.FileJobStorage;
 import com.jobmonitor.storage.JobStorage;
 import java.util.ArrayList;
@@ -23,38 +24,43 @@ public class JobMonitorApplication {
 
 
 
-//    public static void main(String[] args) throws Exception {
-//        AppConfig config = ConfigLoader.loadConfig();
-//        JobFilter jobFilter = new JobFilter(config);
-//        NvidiaScraper nvidiaScraper = new NvidiaScraper(jobFilter);
-//        List<Job> jobs = nvidiaScraper.fetchJobs();
-//
-//        for (Job job:jobs){
-//            System.out.println(job);
-//        }
-//    }
 
 
-    public static void main(String[] args) {
+
+
+    public static void main(String[] args) throws Exception {
+
+        if (System.getenv("DEV_ENV") != null) {
+            scraperTest();
+        }
+        else {
+            runJobScraper();
+        }
+
+
+    }
+
+    private static void scraperTest() throws Exception {
         AppConfig config = ConfigLoader.loadConfig();
         JobFilter jobFilter = new JobFilter(config);
+        JobsProvider scraper = new NvidiaScraper(jobFilter);
+        List<Job> jobs = scraper.fetchJobs();
 
+        for (Job job:jobs){
+            System.out.println(job);
+        }
+    }
 
+    private static void runJobScraper() {
+        AppConfig config = ConfigLoader.loadConfig();
+        JobFilter jobFilter = new JobFilter(config);
 
 
         JobStorage storage = new FileJobStorage(config.getJobsFile());
 
         List<Notifier> notifiers = createNotifiers(config);
-        List<JobsProvider> providers = new ArrayList<>();
 
-        JobsProvider searchService = new GoogleSearchService(config,jobFilter);
-        providers.add(searchService);
-
-        JobsProvider impervaScraper = new ImpervaScraper(jobFilter);
-        providers.add(impervaScraper);
-
-        JobsProvider nvidiaScraper = new NvidiaScraper(jobFilter);
-        providers.add(nvidiaScraper);
+        List<JobsProvider> providers = createProviders(config, jobFilter);
 
         JobMonitorService monitorService = new JobMonitorService(
                 config,
@@ -65,13 +71,27 @@ public class JobMonitorApplication {
         );
 
 
-
-
-
-
         monitorService.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(monitorService::stop));
+    }
+
+    private static List<JobsProvider> createProviders(AppConfig config, JobFilter jobFilter) {
+        List<JobsProvider> providers = new ArrayList<>();
+
+        JobsProvider searchService = new GoogleSearchService(config, jobFilter);
+        providers.add(searchService);
+
+        JobsProvider impervaScraper = new ImpervaScraper(jobFilter);
+        providers.add(impervaScraper);
+
+        JobsProvider nvidiaScraper = new NvidiaScraper(jobFilter);
+        providers.add(nvidiaScraper);
+
+        JobsProvider redHatScraper = new RedHatScraper(jobFilter);
+        providers.add(redHatScraper);
+
+        return providers;
     }
 
 
@@ -98,6 +118,11 @@ public class JobMonitorApplication {
         }
         return secret.substring(0, 4) + "****" + secret.substring(secret.length() - 4);
     }
+
+    public static void printAllEnvVars() {
+        System.getenv().forEach((key, value) -> System.out.println(key + " = " + value));
+    }
+
     private static List<Notifier> createNotifiers(AppConfig config) {
         List<Notifier> notifiers = new ArrayList<>();
         

@@ -14,14 +14,10 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NvidiaScraper implements JobsProvider {
+public class RedHatScraper implements JobsProvider {
 
     private static final String CAREERS_URL =
-            "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite" +
-                    "?source=Eightfold" +
-                    "&locationHierarchy1=2fcb99c455831013ea52bbe14cf9326c" +
-                    "&jobFamilyGroup=0c40f6bd1d8f10ae43ffaefd46dc7e78" +
-                    "&workerSubType=ab40a98049581037a3ada55b087049b7";
+            "https://redhat.wd5.myworkdayjobs.com/jobs/?a=084562884af243748dad7c84c304d89a";
 
 
     private static final String JOBS_POSTED_TODAY_XPATH =
@@ -39,7 +35,7 @@ public class NvidiaScraper implements JobsProvider {
     private WebDriver driver;
 
 
-    public NvidiaScraper(JobFilter filter) {
+    public RedHatScraper(JobFilter filter) {
         this.filter = filter;
     }
 
@@ -69,11 +65,9 @@ public class NvidiaScraper implements JobsProvider {
     private List<Job> scrapeAndFilterJobs() {
         navigateToCareersSite();
         List<Job> jobs = extractAllJobs();
-        return filter.filterByTitle(jobs);
+        List<Job> jobs1 = filter.filterByTitle(jobs);
 
-
-        //description filtering currently not working in nvidia
-        //return filterJobsByDescription(filter.filterByTitle(jobs));
+        return filterJobsByDescription(jobs);
     }
 
     private void navigateToCareersSite() {
@@ -148,6 +142,7 @@ public class NvidiaScraper implements JobsProvider {
     private boolean jobMatchesDescriptionCriteria(Job job) {
         driver.get(job.getLink());
         String fullDescription = buildFullJobDescription(job);
+        System.out.println(fullDescription);
 
         return filter.validateDescription(fullDescription);
     }
