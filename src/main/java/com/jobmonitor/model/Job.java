@@ -22,4 +22,12 @@ public class Job {
     public String getSnippet() {
         return snippet;
     }
+
+    public String toString() {
+        return "Job{" +
+                "link='" + link + '\'' +
+                ", title='" + title + '\'' +
+                ", snippet='" + snippet + '\'' +
+                '}';
+    }
 }
