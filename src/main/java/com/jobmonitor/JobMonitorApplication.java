@@ -79,15 +79,21 @@ public class JobMonitorApplication {
     private static List<JobsProvider> createProviders(AppConfig config, JobFilter jobFilter) {
         List<JobsProvider> providers = new ArrayList<>();
 
+
+        System.out.println("DEBUG: Building Google service provider");
         JobsProvider searchService = new GoogleSearchService(config, jobFilter);
         providers.add(searchService);
 
+        System.out.println("DEBUG: Imperva service provider");
         JobsProvider impervaScraper = new ImpervaScraper(jobFilter);
         providers.add(impervaScraper);
 
+        System.out.println("DEBUG: Nvidia service provider");
         JobsProvider nvidiaScraper = new NvidiaScraper(jobFilter);
         providers.add(nvidiaScraper);
 
+
+        System.out.println("DEBUG: Red Hat service provider");
         JobsProvider redHatScraper = new RedHatScraper(jobFilter);
         providers.add(redHatScraper);
 
