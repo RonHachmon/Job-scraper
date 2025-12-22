@@ -10,9 +10,7 @@ import com.jobmonitor.service.GoogleSearchService;
 import com.jobmonitor.service.JobFilter;
 import com.jobmonitor.service.JobMonitorService;
 import com.jobmonitor.service.JobsProvider;
-import com.jobmonitor.service.scrapers.ImpervaScraper;
-import com.jobmonitor.service.scrapers.NvidiaScraper;
-import com.jobmonitor.service.scrapers.RedHatScraper;
+import com.jobmonitor.service.scrapers.*;
 import com.jobmonitor.storage.FileJobStorage;
 import com.jobmonitor.storage.JobStorage;
 import java.util.ArrayList;
@@ -43,7 +41,10 @@ public class JobMonitorApplication {
     private static void scraperTest() throws Exception {
         AppConfig config = ConfigLoader.loadConfig();
         JobFilter jobFilter = new JobFilter(config);
-        JobsProvider scraper = new NvidiaScraper(jobFilter);
+        //JobsProvider scraper = new NvidiaScraper(jobFilter);
+
+        JobsProvider scraper = new AppleScraper(jobFilter);
+
         List<Job> jobs = scraper.fetchJobs();
 
         for (Job job:jobs){
