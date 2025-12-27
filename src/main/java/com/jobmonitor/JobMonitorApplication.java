@@ -98,6 +98,12 @@ public class JobMonitorApplication {
         JobsProvider redHatScraper = new RedHatScraper(jobFilter);
         providers.add(redHatScraper);
 
+        System.out.println("DEBUG: Apple service provider ");
+        JobsProvider appleScraper = new AppleScraper(jobFilter);
+        providers.add(appleScraper);
+
+
+
         return providers;
     }
 
